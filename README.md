@@ -1,7 +1,7 @@
 # Trabalho: Analisador Sintático
 
 Nome dos alunos e números de matrícula:
-* Aluno: ___________________________
+* Aluno: Neudison Nonato Maia Filho, 2018214305
 * Aluno: ___________________________
 * Disciplina: Compiladores
 * Semestre: 2023/1
