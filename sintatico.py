@@ -1,3 +1,6 @@
+from lexico import analisador_lexico
+
+
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
@@ -6,17 +9,27 @@ class Parser:
         self.advance()
 
     def advance(self):
+        print(f"Index = {self.token_index} e Current Token = {self.current_token}")
         self.token_index += 1
         if self.token_index < len(self.tokens):
             self.current_token = self.tokens[self.token_index]
         else:
             self.current_token = None
+        print(f"Index = {self.token_index} e Current Token = {self.current_token}")
 
     def match(self, expected_token):
+        print(f"Current = {self.current_token}")
+        print(f"Expected = {expected_token}")
         if self.current_token == expected_token:
             self.advance()
         else:
             raise SyntaxError(f"Expected '{expected_token}', but found '{self.current_token}'.")
+        '''
+                if self.current_token == expected_token:
+            self.advance()
+        else:
+            raise SyntaxError(f"Expected '{expected_token}', but found '{self.current_token}'.")
+        '''
 
     def parse(self):
         self.program()
@@ -100,7 +113,8 @@ class Parser:
 
     def printStmt(self):
         self.match("print")
-        self.expression()
+        auxiliar = analisador_lexico(self.current_token)
+        self.primary(auxiliar)
         self.match(";")
 
     def returnStmt(self):
@@ -126,13 +140,17 @@ class Parser:
         self.assignment()
 
     def assignment(self):
-        if self.current_token == "call" or self.current_token == "IDENTIFIER":
+        print(f"assignment = {self.current_token}")
+        auxiliar = analisador_lexico(self.current_token)
+        if auxiliar == "call" or auxiliar == "IDENTIFIER":
             self.call()
-            if self.current_token == "=":
+            if auxiliar == "=":
                 self.match("=")
                 self.assignment()
 
     def call(self):
+        print(f"call = {self.current_token}")
+        auxiliar = analisador_lexico(self.current_token)
         self.primary()
         if self.current_token == "(":
             self.match("(")
@@ -143,19 +161,19 @@ class Parser:
             self.match(".")
             self.match("IDENTIFIER")
 
-    def primary(self):
-        if self.current_token in ["true", "false", "nil", "this", "NUMBER", "STRING", "IDENTIFIER"]:
+    def primary(self, auxiliar):
+        if auxiliar in ["true", "false", "nil", "this", "NUMBER", "STRING", "IDENTIFIER"]:
             self.match(self.current_token)
-        elif self.current_token == "(":
+        elif auxiliar == "(":
             self.match("(")
             self.expression()
             self.match(")")
-        elif self.current_token == "super":
+        elif auxiliar == "super":
             self.match("super")
             self.match(".")
             self.match("IDENTIFIER")
         else:
-            raise SyntaxError(f"Unexpected token '{self.current_token}' in primary.")
+            raise SyntaxError(f"Unexpected token '{self.current_token}', {auxiliar} in primary.")
 
     def function(self):
         self.match("IDENTIFIER")

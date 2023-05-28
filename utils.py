@@ -51,10 +51,13 @@ def iniciar_analisador(programa):
     print(programa)
 
     tokens = tokenize(programa)  # Converte os tokens um por um
-
-    analisador_lexico(tokens)
+    '''n = 0
+    for token in tokens:
+        #print(token)
+        n = analisador_lexico(token)
+        print(n)
+    '''
     print(tokens)
-
     try:
         # Criação do analisador sintático
         parser = Parser(tokens)

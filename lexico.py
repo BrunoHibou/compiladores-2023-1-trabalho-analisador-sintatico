@@ -3,9 +3,29 @@ import re
 import sys
 
 
+def analisador_lexico(token):
+    print(token)
+    auxiliar = encontrar_constantes_textuais(token)
+    if not auxiliar:
+        auxiliar = encontrar_palavras_reservadas(token)
+        if not auxiliar:
+            auxiliar = encontrar_operadores(token)
+            if not auxiliar:
+                auxiliar = encontrar_numeros(token)
+                if not auxiliar:
+                    auxiliar = encontrar_delimitadores(token)
+                    if not auxiliar:
+                        auxiliar = encontrar_identificadores(token)
+                        if not auxiliar:
+                            print(f"erro lexico {token}")
+                            sys.exit()
+    return auxiliar
+
+
+'''
 def analisador_lexico(tokens):
     for token in tokens:
-        print(token)
+        #print(token)
         if encontrar_constantes_textuais(token):
             continue
         if encontrar_palavras_reservadas(token):
@@ -21,6 +41,7 @@ def analisador_lexico(tokens):
         else:
             print(f"erro lexico {token}")
             sys.exit()
+'''
 
 
 def encontrar_palavras_reservadas(programa):
@@ -35,7 +56,7 @@ def palavrasReservadas(palavras_reservadas_encontradas):
         return False
     for palavra in palavras_reservadas_encontradas:
         print(f"'{palavra}' é uma Palavra Reservada.")
-        return True
+        return palavra
 
 
 def encontrar_operadores(programa):
@@ -51,7 +72,7 @@ def imprimir_operadores(operadores_encontrados):
         return False
     for op in operadores_encontrados:
         print(f"'{op[1]}' é um Operador.")
-        return True
+        return op[1]
 
 
 def encontrar_numeros(programa):
@@ -76,7 +97,7 @@ def imprimir_numeros(numeros, tipo):
         return False
     for num in numeros:
         print(f"'{num}' é um numeral {tipo}.")
-        return True
+        return "NUMBER"
 
 
 def encontrar_constantes_textuais(programa):
@@ -85,13 +106,21 @@ def encontrar_constantes_textuais(programa):
     return imprimir_constantes_textuais(constantes_encontradas)
 
 
+'''
+def encontrar_constantes_textuais(programa):
+    padrao = expressoes_regulares['constantes_textuais']
+    constantes_encontradas = re.findall(padrao, programa)
+    return imprimir_constantes_textuais(constantes_encontradas)
+'''
+
+
 def imprimir_constantes_textuais(constantes_encontradas):
     if not constantes_encontradas:
         # print("Não há Constantes Textuais.")
         return False
     for constante in constantes_encontradas:
         print(f"'{constante}' é uma Constante Textual.")
-        return True
+        return "STRING"
 
 
 def encontrar_delimitadores(programa):
@@ -129,11 +158,10 @@ def imprimir_identificadores(identificadores_encontrados):
         return False
     for identificadores in identificadores_encontrados:
         print(f"'{identificadores}' é um identificador.")
-        return True
+        return "IDENTIFIER"
 
 
 def encontrar_caractere_nao_permitido(programa):
-
     for token in programa:
         if token not in ignoraveis and not any(re.findall(padrao, token) for padrao in expressoes_regulares.values()):
             print(f"Erro: o token '{token}' contém caracteres não permitidos!")
