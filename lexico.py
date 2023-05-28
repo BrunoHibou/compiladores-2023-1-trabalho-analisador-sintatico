@@ -3,13 +3,7 @@ import re
 import sys
 
 
-def analisador_lexico(programa):
-    programa = adicionar_espacos_delimitadores(programa)
-    programa = adicionar_espacos_operadores(programa)
-    print(programa)
-
-    tokens = programa.split()  # Divide a string em tokens individuais
-
+def analisador_lexico(tokens):
     for token in tokens:
         print(token)
         if encontrar_constantes_textuais(token):
@@ -29,36 +23,8 @@ def analisador_lexico(programa):
             sys.exit()
 
 
-def adicionar_espacos_delimitadores(programa):
-    padrao_aspas = r'"(.*?)"'
-    ocorrencias = re.findall(padrao_aspas, programa)
-    for ocorrencia in ocorrencias:
-        delimitador = f'"{ocorrencia}"'
-        programa = programa.replace(delimitador, delimitador.replace(" ", "<ESPACO>"))
-    programa = re.sub(r'[\(\)\[\]\{\};,:]', r' \g<0> ', programa)
-    programa = programa.replace("<ESPACO>", " ")
-    return programa
-
-
-'''def adicionar_espacos_delimitadores(programa):
-    delimitadores = r"[\(\)\[\]\{\};,:]"
-    padrao = re.compile(f"({delimitadores})")
-
-    string_formatada = padrao.sub(r' \1 ', programa)
-    return string_formatada'''
-
-
-def adicionar_espacos_operadores(programa):
-    operadores_auxiliar = r"(\s+|)(%s)(\s+|)" % "|".join(map(re.escape, operadores))
-    padrao = re.compile(f"({operadores_auxiliar})")
-
-    string_formatada = padrao.sub(r' \1 ', programa)
-    return string_formatada
-
-
 def encontrar_palavras_reservadas(programa):
     padrao = r"\b(" + "|".join(palavras_reservadas) + r")\b"
-    # nova_string = re.sub(padrao, lambda match: ' ', programa)
     palavras_reservadas_encontradas = re.findall(padrao, programa)
     return palavrasReservadas(palavras_reservadas_encontradas)
 
@@ -113,13 +79,6 @@ def imprimir_numeros(numeros, tipo):
         return True
 
 
-'''def encontrar_constantes_textuais(programa):
-    padrao = expressoes_regulares['constantes_textuais']
-    constantes_encontradas = re.findall(padrao, programa)
-    # nova_string = re.sub(padrao, lambda match: ' ', programa)
-    return imprimir_constantes_textuais(constantes_encontradas)'''
-
-
 def encontrar_constantes_textuais(programa):
     padrao = expressoes_regulares['constantes_textuais']
     constantes_encontradas = re.findall(padrao, programa)
@@ -152,11 +111,15 @@ def imprimir_delimitadores(delimitadores_encontrados):
 
 
 def encontrar_identificadores(programa):
-    encontrar_caractere_nao_permitido(programa)
-    encontrar_palavras_com_numeros(programa)
     padrao = expressoes_regulares['identificadores']
-    caracteres_identificadores = re.findall(padrao, programa)
-    # nova_string = re.sub(padrao, lambda match: ' ', programa)
+    caracteres_identificadores = []
+    encontrar_palavras_com_numeros(programa)
+
+    for token in programa:
+        encontrar_caractere_nao_permitido(token)  # Verifica caracteres não permitidos dentro de cada token
+        if re.match(padrao, token):
+            caracteres_identificadores.append(token)
+
     return imprimir_identificadores(caracteres_identificadores)
 
 
@@ -170,10 +133,10 @@ def imprimir_identificadores(identificadores_encontrados):
 
 
 def encontrar_caractere_nao_permitido(programa):
-    for caractere in programa:
-        if caractere not in caractere not in ignoraveis and not any(
-                re.findall(padrao, caractere) for padrao in expressoes_regulares.values()):
-            print(f"Erro: o caractere '{caractere}' não é permitido!")
+
+    for token in programa:
+        if token not in ignoraveis and not any(re.findall(padrao, token) for padrao in expressoes_regulares.values()):
+            print(f"Erro: o token '{token}' contém caracteres não permitidos!")
             sys.exit()
 
 
@@ -189,6 +152,89 @@ def encontrar_palavras_com_numeros(programa):
 
 
 '''
+def tokenize(programa):
+    tokens = []
+    token_atual = ""
+    dentro_das_aspas = False
+
+    for char in programa:
+        if char == '"':
+            if dentro_das_aspas:
+                token_atual += char
+                tokens.append(token_atual)
+                token_atual = ""
+                dentro_das_aspas = False
+            else:
+                if token_atual:
+                    tokens.append(token_atual)
+                    token_atual = ""
+                dentro_das_aspas = True
+                token_atual += char
+        elif char.isspace():
+            if token_atual and not dentro_das_aspas:
+                tokens.append(token_atual)
+                token_atual = ""
+        else:
+            token_atual += char
+
+    if token_atual:
+        tokens.append(token_atual)
+
+    return tokens
+
+
+def analisador_lexico(programa):
+    programa = adicionar_espacos_delimitadores(programa)
+    programa = adicionar_espacos_operadores(programa)
+    print(programa)
+
+    tokens = programa.split()  # Divide a string em tokens individuais
+
+    for token in tokens:
+        print(token)
+        if encontrar_constantes_textuais(token):
+            continue
+        if encontrar_palavras_reservadas(token):
+            continue
+        if encontrar_operadores(token):
+            continue
+        if encontrar_numeros(token):
+            continue
+        if encontrar_delimitadores(token):
+            continue
+        if encontrar_identificadores(token):
+            continue
+        else:
+            print(f"erro lexico {token}")
+            sys.exit()
+
+
+def adicionar_espacos_delimitadores(programa):
+    delimitadores = r"[\(\)\[\]\{\};,:]"
+    padrao = re.compile(f"({delimitadores})")
+
+    string_formatada = padrao.sub(r' \1 ', programa)
+    return string_formatada
+    
+    
+def tokenize(programa):
+    tokens = []
+    token_atual = ""
+
+    for char in programa:
+        if char.isspace():
+            if token_atual:
+                tokens.append(token_atual)
+                token_atual = ""
+        else:
+            token_atual += char
+
+    if token_atual:
+        tokens.append(token_atual)
+
+    return tokens
+    
+    
 def encontrar_numeros(programa):
     padrao = expressoes_regulares['numerais']
     numeros_encontrados = re.findall(padrao, programa)
@@ -196,6 +242,12 @@ def encontrar_numeros(programa):
     nova_string = re.sub(padrao, lambda match: ' ', programa)
     return nova_string
 
+
+def encontrar_constantes_textuais(programa):
+    padrao = expressoes_regulares['constantes_textuais']
+    constantes_encontradas = re.findall(padrao, programa)
+    # nova_string = re.sub(padrao, lambda match: ' ', programa)
+    return imprimir_constantes_textuais(constantes_encontradas)
 
 def encontrar_caracteres_especiais(programa):
     padrao = expressoes_regulares['caracteres_especiais']
@@ -211,6 +263,21 @@ def encontrar_caracteres_especiais(programa):
     nova_string = re.sub(padrao, lambda match: ' ', programa)
     return nova_string
 
+
+def encontrar_identificadores(programa):
+    encontrar_caractere_nao_permitido(programa)
+    encontrar_palavras_com_numeros(programa)
+    padrao = expressoes_regulares['identificadores']
+    caracteres_identificadores = re.findall(padrao, programa)
+    # nova_string = re.sub(padrao, lambda match: ' ', programa)
+    return imprimir_identificadores(caracteres_identificadores)
+    
+def encontrar_caractere_nao_permitido(programa):
+    for caractere in programa:
+        if caractere not in caractere not in ignoraveis and not any(
+                re.findall(padrao, caractere) for padrao in expressoes_regulares.values()):
+            print(f"Erro: o caractere '{caractere}' não é permitido!")
+            sys.exit()
 
 
 def ler_arquivo(teste):

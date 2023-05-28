@@ -1,4 +1,6 @@
 from dicionarios import *
+from lexico import *
+from sintatico import *
 import re
 import sys
 
@@ -42,3 +44,113 @@ def ler_arquivo(teste):
     f.close()
     return program
 
+
+def iniciar_analisador(programa):
+    programa = adicionar_espacos_delimitadores(programa)
+    programa = adicionar_espacos_operadores(programa)
+    print(programa)
+
+    tokens = tokenize(programa)  # Converte os tokens um por um
+
+    analisador_lexico(tokens)
+    print(tokens)
+
+    try:
+        # Criação do analisador sintático
+        parser = Parser(tokens)
+        parser.parse()
+        print("Análise sintática concluída com sucesso!")
+    except SyntaxError as e:
+        print(f"Erro de sintaxe: {str(e)}")
+
+
+def tokenize(programa):
+    tokens = []
+    token_atual = ""
+    dentro_das_aspas = False
+
+    for char in programa:
+        if char == '"':
+            if dentro_das_aspas:
+                token_atual += char
+                tokens.append(token_atual)
+                token_atual = ""
+                dentro_das_aspas = False
+            else:
+                if token_atual:
+                    tokens.append(token_atual)
+                    token_atual = ""
+                dentro_das_aspas = True
+                token_atual += char
+        elif dentro_das_aspas:
+            token_atual += char
+        elif char.isspace():
+            if token_atual:
+                tokens.append(token_atual)
+                token_atual = ""
+        else:
+            token_atual += char
+
+    if token_atual:
+        tokens.append(token_atual)
+
+    return tokens
+
+
+def adicionar_espacos_delimitadores(programa):
+    padrao_aspas = r'"(.*?)"'
+    ocorrencias = re.findall(padrao_aspas, programa)
+    marcador_espaco = "<ESPACO>"
+    espacos_reservados = []
+
+    for ocorrencia in ocorrencias:
+        delimitador = f'"{ocorrencia}"'
+        espacos = " " * len(ocorrencia)
+        programa = programa.replace(delimitador, delimitador.replace(ocorrencia, marcador_espaco))
+        espacos_reservados.append(ocorrencia)
+
+    programa = re.sub(r'[\(\)\[\]\{\};,:]', r' \g<0> ', programa)
+
+    for espaco_reservado in espacos_reservados:
+        programa = programa.replace(marcador_espaco, espaco_reservado, 1)
+
+    return programa
+
+
+def adicionar_espacos_operadores(programa):
+    operadores_auxiliar = r"(\s+|)(%s)(\s+|)" % "|".join(map(re.escape, operadores))
+    padrao = re.compile(f"({operadores_auxiliar})")
+
+    string_formatada = padrao.sub(lambda m: m.group(1) if m.group(1) else ' ' + m.group(2) + ' ' if m.group(2) else ' ',
+                                  programa)
+    return string_formatada
+
+
+'''
+def iniciar_analisador(programa):
+    programa = adicionar_espacos_delimitadores(programa)
+    programa = adicionar_espacos_operadores(programa)
+    print(programa)
+
+    tokens = tokenize(programa)  # Converte os tokens um por um
+    print(tokens)
+    # Lista de tokens obtidos através do analisador léxico
+    analisador_lexico(tokens)
+    # Criação do analisador sintático
+    parser = Parser(tokens)
+    print(tokens)
+    try:
+        # Inicia a análise sintática
+        parser.parse()
+        print("Análise sintática concluída com sucesso!")
+    except SyntaxError as e:
+        print(f"Erro de sintaxe: {str(e)}")
+
+
+
+def adicionar_espacos_operadores(programa):
+    operadores_auxiliar = r"(\s+|)(%s)(\s+|)" % "|".join(map(re.escape, operadores))
+    padrao = re.compile(f"({operadores_auxiliar})")
+
+    string_formatada = padrao.sub(r' \1 ', programa)
+    return string_formatada'''
