@@ -9,13 +9,13 @@ class Parser:
         self.advance()
 
     def advance(self):
-        print(f"Index = {self.token_index} e Current Token = {self.current_token}")
+        print(f"Index = '{self.token_index}' e Current Token = '{self.current_token}'")
         self.token_index += 1
         if self.token_index < len(self.tokens):
             self.current_token = self.tokens[self.token_index]
         else:
             self.current_token = None
-        print(f"Index = {self.token_index} e Current Token = {self.current_token}")
+        print(f"Index = '{self.token_index}' e Current Token = '{self.current_token}'")
 
     def match(self, expected_token):
         print(f"Current = {self.current_token}")
@@ -55,8 +55,10 @@ class Parser:
 
     def varDecl(self):
         self.match("var")
-        self.match("IDENTIFIER")
-        if self.current_token in ["IDENTIFIER", "="]:
+        auxiliar = analisador_lexico(self.current_token)
+        self.identifier(auxiliar)
+        # if self.current_token in ["IDENTIFIER", "="]:
+        if self.current_token == "=":
             self.match("=")
             self.expression()
         self.match(";")
@@ -140,18 +142,17 @@ class Parser:
         self.assignment()
 
     def assignment(self):
-        print(f"assignment = {self.current_token}")
+        print(f"expression = {self.current_token}")
         auxiliar = analisador_lexico(self.current_token)
-        if auxiliar == "call" or auxiliar == "IDENTIFIER":
-            self.call()
+        if auxiliar == "call" or "IDENTIFIER" or "NUMBER":
+            print("entrei no callkkkkkkkkkk")
+            self.call(auxiliar)
             if auxiliar == "=":
                 self.match("=")
-                self.assignment()
+                self.expression()
 
-    def call(self):
-        print(f"call = {self.current_token}")
-        auxiliar = analisador_lexico(self.current_token)
-        self.primary()
+    def call(self, auxiliar):
+        self.primary(auxiliar)
         if self.current_token == "(":
             self.match("(")
             if self.current_token != ")":
@@ -194,3 +195,7 @@ class Parser:
         while self.current_token == ",":
             self.match(",")
             self.expression()
+
+    def identifier(self, auxiliar):
+        if auxiliar == "IDENTIFIER":
+            self.match(self.current_token)
