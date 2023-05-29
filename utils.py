@@ -51,23 +51,9 @@ def iniciar_analisador(programa):
     print(programa)
 
     tokens = tokenize(programa)  # Converte os tokens um por um
-    '''n = 0
-    for token in tokens:
-        #print(token)
-        n = analisador_lexico(token)
-        print(n)
-    '''
     print(tokens)
     parse(tokens)
-'''    
-    try:
-        # Criação do analisador sintático
-        parser = Parser(tokens)
-        parser.parse()
-        print("Análise sintática concluída com sucesso!")
-    except SyntaxError as e:
-        print(f"Erro de sintaxe: {str(e)}")
-'''
+
 
 def tokenize(programa):
     tokens = []
@@ -125,37 +111,33 @@ def adicionar_espacos_delimitadores(programa):
 def adicionar_espacos_operadores(programa):
     operadores_auxiliar = r"(\s+|)(%s)(\s+|)" % "|".join(map(re.escape, operadores))
     padrao = re.compile(f"({operadores_auxiliar})")
+    string_formatada = padrao.sub(lambda m: m.group(1) if m.group(1) else ' ' + m.group(2) + ' ' if m.group(2) else ' ', programa)
 
-    string_formatada = padrao.sub(lambda m: m.group(1) if m.group(1) else ' ' + m.group(2) + ' ' if m.group(2) else ' ',
-                                  programa)
+    padrao = re.compile(r'(!)([a-zA-Z_][a-zA-Z0-9_]*)')
+
+    def adicionar_espaco(match):
+        return match.group(1) + ' ' + match.group(2)
+
+    string_formatada = padrao.sub(adicionar_espaco, string_formatada)
+
     return string_formatada
 
-
 '''
-def iniciar_analisador(programa):
-    programa = adicionar_espacos_delimitadores(programa)
-    programa = adicionar_espacos_operadores(programa)
-    print(programa)
-
-    tokens = tokenize(programa)  # Converte os tokens um por um
-    print(tokens)
-    # Lista de tokens obtidos através do analisador léxico
-    analisador_lexico(tokens)
-    # Criação do analisador sintático
-    parser = Parser(tokens)
-    print(tokens)
-    try:
-        # Inicia a análise sintática
-        parser.parse()
-        print("Análise sintática concluída com sucesso!")
-    except SyntaxError as e:
-        print(f"Erro de sintaxe: {str(e)}")
-
-
-
 def adicionar_espacos_operadores(programa):
     operadores_auxiliar = r"(\s+|)(%s)(\s+|)" % "|".join(map(re.escape, operadores))
     padrao = re.compile(f"({operadores_auxiliar})")
 
-    string_formatada = padrao.sub(r' \1 ', programa)
-    return string_formatada'''
+    string_formatada = padrao.sub(lambda m: m.group(1) if m.group(1) else ' ' + m.group(2) + ' ' if m.group(2) else ' ',
+                                  programa)
+
+    programa = string_formatada
+
+    padrao = re.compile(r'(!)([a-zA-Z_][a-zA-Z0-9_]*)')
+
+    def adicionar_espaco(match):
+        return match.group(1) + ' ' + match.group(2)
+
+    string_formatada = padrao.sub(adicionar_espaco, programa)
+
+    return string_formatada
+'''
