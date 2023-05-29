@@ -41,7 +41,6 @@ def parse(tokens):
         function()
 
     def function():
-        print("aaaaaaaa")
         match("IDENTIFIER")
         match("(")
         if current_token != ")":
