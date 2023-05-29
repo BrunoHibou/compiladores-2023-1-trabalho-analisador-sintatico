@@ -41,6 +41,7 @@ def parse(tokens):
         function()
 
     def function():
+        print("aaaaaaaa")
         match("IDENTIFIER")
         match("(")
         if current_token != ")":
@@ -142,7 +143,6 @@ def parse(tokens):
         assignment()
 
     def assignment():
-        print("yey") #o erro tá aqui em algum lugar
         nonlocal auxiliar
         if auxiliar == "IDENTIFIER":
             match("IDENTIFIER")
@@ -216,6 +216,8 @@ def parse(tokens):
         elif auxiliar == "(":
             match("(")
             expression()
+            if current_token == ",":
+                arguments()
             match(")")
         elif auxiliar == "super":
             match("super")
@@ -238,4 +240,5 @@ def parse(tokens):
         print(f"--- SyntaxError: Unexpected token '{current_token}' at the end of the program. ---")
         sys.exit()
     else:
+        print(tokens)
         print("----------------- Análise Sintática Concluída com Sucesso -----------------")
