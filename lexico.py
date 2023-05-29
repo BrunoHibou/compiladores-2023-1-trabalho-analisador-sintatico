@@ -101,6 +101,7 @@ def retornar_delimitadores(delimitadores_encontrados):
         return caracteres
 
 
+# precisa de ajustes
 def encontrar_identificadores(programa):
     padrao = expressoes_regulares['identificadores']
     caracteres_identificadores = []
@@ -114,6 +115,7 @@ def encontrar_identificadores(programa):
     return retornar_identificadores(caracteres_identificadores)
 
 
+# precisa de ajustes
 def retornar_identificadores(identificadores_encontrados):
     if not identificadores_encontrados:
         return False

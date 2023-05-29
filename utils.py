@@ -108,6 +108,7 @@ def adicionar_espacos_delimitadores(programa):
     return programa
 
 
+#precisa de ajustes
 def adicionar_espacos_operadores(programa):
     operadores_auxiliar = r"(\s+|)(%s)(\s+|)" % "|".join(map(re.escape, operadores))
     padrao = re.compile(f"({operadores_auxiliar})")
