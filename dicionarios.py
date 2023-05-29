@@ -20,7 +20,8 @@ palavras_reservadas = ["break",
                        "print",
                        "true",
                        "false",
-                       "nil"]
+                       "nil",
+                       "fun"]
 
 operadores = ["+=",
               "-=",

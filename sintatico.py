@@ -1,201 +1,241 @@
 from lexico import analisador_lexico
+import sys
 
 
-class Parser:
-    def __init__(self, tokens):
-        self.tokens = tokens
-        self.current_token = None
-        self.token_index = -1
-        self.advance()
+def parse(tokens):
+    current_token = None
+    auxiliar = None
+    token_index = 0
 
-    def advance(self):
-        print(f"Index = '{self.token_index}' e Current Token = '{self.current_token}'")
-        self.token_index += 1
-        if self.token_index < len(self.tokens):
-            self.current_token = self.tokens[self.token_index]
+    def advance():
+        nonlocal current_token, token_index, auxiliar
+        if token_index < len(tokens):
+            current_token = tokens[token_index]
+            auxiliar = analisador_lexico(current_token)
+            token_index += 1
         else:
-            self.current_token = None
-        print(f"Index = '{self.token_index}' e Current Token = '{self.current_token}'")
+            current_token = None
 
-    def match(self, expected_token):
-        print(f"Current = {self.current_token}")
-        print(f"Expected = {expected_token}")
-        if self.current_token == expected_token:
-            self.advance()
+    def match(expected_token):
+        nonlocal current_token, auxiliar
+        if auxiliar == expected_token:
+            advance()
         else:
-            raise SyntaxError(f"Expected '{expected_token}', but found '{self.current_token}'.")
-        '''
-                if self.current_token == expected_token:
-            self.advance()
+            print(f"--- SyntaxError: Expected '{expected_token}', but found '{current_token}'. ---")
+            sys.exit()
+
+    def program():
+        while current_token is not None:
+            declaration()
+
+    def declaration():
+        if current_token == "fun":
+            funDecl()
+        elif current_token == "var":
+            varDecl()
         else:
-            raise SyntaxError(f"Expected '{expected_token}', but found '{self.current_token}'.")
-        '''
+            statement()
 
-    def parse(self):
-        self.program()
+    def funDecl():
+        match("fun")
+        function()
 
-        if self.current_token is not None:
-            raise SyntaxError(f"Unexpected token '{self.current_token}' at the end of the program.")
+    def function():
+        match("IDENTIFIER")
+        match("(")
+        if current_token != ")":
+            parameters()
+        match(")")
+        block()
 
-    def program(self):
-        while self.current_token is not None:
-            self.declaration()
+    def parameters():
+        match("IDENTIFIER")
+        while current_token == ",":
+            match(",")
+            match("IDENTIFIER")
 
-    def declaration(self):
-        if self.current_token == "fun":
-            self.funDecl()
-        elif self.current_token == "var":
-            self.varDecl()
-        else:
-            self.statement()
+    def block():
+        match("{")
+        while current_token != "}":
+            declaration()
+        match("}")
 
-    def funDecl(self):
-        self.match("fun")
-        self.function()
+    def varDecl():
+        match("var")
+        match("IDENTIFIER")
+        if current_token == "=":
+            match("=")
+            expression()
+        match(";")
 
-    def varDecl(self):
-        self.match("var")
-        auxiliar = analisador_lexico(self.current_token)
-        self.identifier(auxiliar)
-        # if self.current_token in ["IDENTIFIER", "="]:
-        if self.current_token == "=":
-            self.match("=")
-            self.expression()
-        self.match(";")
-
-    def statement(self):
-        if self.current_token == "exprStmt":
-            self.exprStmt()
-        elif self.current_token == "for":
-            self.forStmt()
-        elif self.current_token == "if":
-            self.ifStmt()
-        elif self.current_token == "print":
-            self.printStmt()
-        elif self.current_token == "return":
-            self.returnStmt()
-        elif self.current_token == "while":
-            self.whileStmt()
-        elif self.current_token == "{":
-            self.block()
-        else:
-            raise SyntaxError(f"Unexpected token '{self.current_token}' in statement.")
-
-    def exprStmt(self):
-        self.expression()
-        self.match(";")
-
-    def forStmt(self):
-        self.match("for")
-        self.match("(")
-        if self.current_token == "var":
-            self.varDecl()
-        elif self.current_token == "exprStmt":
-            self.exprStmt()
-        elif self.current_token != ";":
-            self.expression()
-        self.match(";")
-        if self.current_token != ";":
-            self.expression()
-        self.match(";")
-        if self.current_token != ")":
-            self.expression()
-        self.match(")")
-        self.statement()
-
-    def ifStmt(self):
-        self.match("if")
-        self.match("(")
-        self.expression()
-        self.match(")")
-        self.statement()
-        if self.current_token == "else":
-            self.match("else")
-            self.statement()
-
-    def printStmt(self):
-        self.match("print")
-        auxiliar = analisador_lexico(self.current_token)
-        self.primary(auxiliar)
-        self.match(";")
-
-    def returnStmt(self):
-        self.match("return")
-        if self.current_token != ";":
-            self.expression()
-        self.match(";")
-
-    def whileStmt(self):
-        self.match("while")
-        self.match("(")
-        self.expression()
-        self.match(")")
-        self.statement()
-
-    def block(self):
-        self.match("{")
-        while self.current_token != "}":
-            self.declaration()
-        self.match("}")
-
-    def expression(self):
-        self.assignment()
-
-    def assignment(self):
-        print(f"expression = {self.current_token}")
-        auxiliar = analisador_lexico(self.current_token)
-        if auxiliar == "call" or "IDENTIFIER" or "NUMBER":
-            print("entrei no callkkkkkkkkkk")
-            self.call(auxiliar)
-            if auxiliar == "=":
-                self.match("=")
-                self.expression()
-
-    def call(self, auxiliar):
-        self.primary(auxiliar)
-        if self.current_token == "(":
-            self.match("(")
-            if self.current_token != ")":
-                self.arguments()
-            self.match(")")
-        elif self.current_token == ".":
-            self.match(".")
-            self.match("IDENTIFIER")
-
-    def primary(self, auxiliar):
-        if auxiliar in ["true", "false", "nil", "this", "NUMBER", "STRING", "IDENTIFIER"]:
-            self.match(self.current_token)
-        elif auxiliar == "(":
-            self.match("(")
-            self.expression()
-            self.match(")")
-        elif auxiliar == "super":
-            self.match("super")
-            self.match(".")
-            self.match("IDENTIFIER")
-        else:
-            raise SyntaxError(f"Unexpected token '{self.current_token}', {auxiliar} in primary.")
-
-    def function(self):
-        self.match("IDENTIFIER")
-        self.match("(")
-        if self.current_token != ")":
-            self.parameters()
-        self.match(")")
-        self.block()
-
-    def parameters(self):
-        self.match("IDENTIFIER")
-        while self.current_token == ",":
-            self.match(",")
-            self.match("IDENTIFIER")
-
-    def arguments(self):
-        self.expression()
-        while self.current_token == ",":
-            self.match(",")
-            self.expression()
-
-    def identifier(self, auxiliar):
+    def statement():
+        nonlocal auxiliar
         if auxiliar == "IDENTIFIER":
-            self.match(self.current_token)
+            exprStmt()
+        elif current_token == "for":
+            forStmt()
+        elif current_token == "if":
+            ifStmt()
+        elif current_token == "print":
+            printStmt()
+        elif current_token == "return":
+            returnStmt()
+        elif current_token == "while":
+            whileStmt()
+        elif current_token == "{":
+            block()
+        else:
+            print(f"--- SyntaxError: Unexpected token '{current_token}' in statement. ---")
+            sys.exit()
+
+    def exprStmt():
+        expression()
+        match(";")
+
+    def forStmt():
+        match("for")
+        match("(")
+        if current_token == "var":
+            varDecl()
+        elif current_token == "exprStmt":
+            exprStmt()
+        elif current_token != ";":
+            expression()
+        match(";")
+        if current_token != ";":
+            expression()
+        match(";")
+        if current_token != ")":
+            expression()
+        match(")")
+        statement()
+
+    def ifStmt():
+        match("if")
+        match("(")
+        expression()
+        match(")")
+        statement()
+        if current_token == "else":
+            match("else")
+            statement()
+
+    def printStmt():
+        match("print")
+        expression()
+        match(";")
+
+    def returnStmt():
+        match("return")
+        if current_token != ";":
+            expression()
+        match(";")
+
+    def whileStmt():
+        match("while")
+        match("(")
+        expression()
+        match(")")
+        statement()
+
+    def expression():
+        assignment()
+
+    def assignment():
+        print("yey") #o erro tá aqui em algum lugar
+        nonlocal auxiliar
+        if auxiliar == "IDENTIFIER":
+            match("IDENTIFIER")
+            if current_token == "=":
+                match("=")
+                assignment()
+            else:
+                logic_or()
+        else:
+            logic_or()
+
+    def logic_or():
+        logic_and()
+        while current_token == "or":
+            match("or")
+            logic_and()
+
+    def logic_and():
+        equality()
+        while current_token == "and":
+            match("and")
+            equality()
+
+    def equality():
+        comparison()
+        while current_token in ["!=", "=="]:
+            match(current_token)
+            comparison()
+
+    def comparison():
+        term()
+        while current_token in [">", ">=", "<", "<="]:
+            match(current_token)
+            term()
+
+    def term():
+        factor()
+        while current_token in ["-", "+"]:
+            match(current_token)
+            factor()
+
+    def factor():
+        unary()
+        while current_token in ["/", "*"]:
+            match(current_token)
+            unary()
+
+    def unary():
+        if current_token in ["!", "-"]:
+            match(current_token)
+            unary()
+        else:
+            call()
+
+    def call():
+        primary()
+        while current_token in ["(", "."]:
+            if current_token == "(":
+                match("(")
+                if current_token != ")":
+                    arguments()
+                match(")")
+            elif current_token == ".":
+                match(".")
+                match("IDENTIFIER")
+
+    def primary():
+        nonlocal auxiliar
+        if auxiliar in ["true", "false", "nil", "this", "NUMBER", "STRING", "IDENTIFIER"]:
+            match(auxiliar)
+        elif auxiliar == "(":
+            match("(")
+            expression()
+            match(")")
+        elif auxiliar == "super":
+            match("super")
+            match(".")
+            match("IDENTIFIER")
+        '''else:
+            print(f"--- SyntaxError: Unexpected token '{current_token}' in primary. ---")
+            sys.exit()'''
+
+    def arguments():
+        expression()
+        while current_token == ",":
+            match(",")
+            expression()
+
+    advance()
+    program()
+
+    if current_token is not None:
+        print(f"--- SyntaxError: Unexpected token '{current_token}' at the end of the program. ---")
+        sys.exit()
+    else:
+        print("----------------- Análise Sintática Concluída com Sucesso -----------------")

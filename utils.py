@@ -58,6 +58,8 @@ def iniciar_analisador(programa):
         print(n)
     '''
     print(tokens)
+    parse(tokens)
+'''    
     try:
         # Criação do analisador sintático
         parser = Parser(tokens)
@@ -65,7 +67,7 @@ def iniciar_analisador(programa):
         print("Análise sintática concluída com sucesso!")
     except SyntaxError as e:
         print(f"Erro de sintaxe: {str(e)}")
-
+'''
 
 def tokenize(programa):
     tokens = []
