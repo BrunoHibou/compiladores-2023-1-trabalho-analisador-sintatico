@@ -2,7 +2,7 @@ from utils import *
 
 
 def main():
-    nome = './testes/teste1.ptc'
+    nome = './testes/testeall.ptc'
     programa = ler_arquivo(nome)
     original = open(nome, 'r')
     print(original.read())
