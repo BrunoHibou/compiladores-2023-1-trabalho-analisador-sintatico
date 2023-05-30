@@ -109,13 +109,56 @@ def adicionar_espacos_delimitadores(programa):
 
 
 #precisa de ajustes
+
+
+def adicionar_espacos_operadores(programa):
+
+    resultado = ''
+    entre_aspas = False
+
+    for char in programa:
+        if char == '"':
+            entre_aspas = not entre_aspas
+
+        if entre_aspas:
+            resultado += char
+        else:
+            if char in operadores:
+                resultado += ' ' + char + ' '
+            else:
+                resultado += char
+
+    return resultado
+
+
+'''
+
+def adicionar_espacos_operadores(programa):
+    resultado = ''
+    i = 0
+
+    while i < len(programa):
+        char = programa[i]
+
+        # Verifica se o caractere atual é um operador
+        if char in operadores:
+            resultado += ' ' + char + ' '
+        else:
+            resultado += char
+
+        i += 1
+
+    return resultado
+
+------------------------
+
 def adicionar_espacos_operadores(programa):
     operadores_auxiliar = r"(\s+|)(%s)(\s+|)" % "|".join(map(re.escape, operadores))
     padrao = re.compile(f"({operadores_auxiliar})")
     string_formatada = padrao.sub(lambda m: m.group(1) if m.group(1) else ' ' + m.group(2) + ' ' if m.group(2) else ' ', programa)
 
     padrao = re.compile(r'(!)([a-zA-Z_][a-zA-Z0-9_]*)')
-
+    
     def adicionar_espaco(match):
         return match.group(1) + ' ' + match.group(2)
 
@@ -123,7 +166,11 @@ def adicionar_espacos_operadores(programa):
 
     return string_formatada
 
-'''
+
+
+
+-----------------------
+
 def adicionar_espacos_operadores(programa):
     operadores_auxiliar = r"(\s+|)(%s)(\s+|)" % "|".join(map(re.escape, operadores))
     padrao = re.compile(f"({operadores_auxiliar})")
