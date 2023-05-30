@@ -1,8 +1,6 @@
-from dicionarios import *
 from lexico import *
 from sintatico import *
 import re
-import sys
 
 
 def ler_arquivo(teste):
@@ -16,26 +14,21 @@ def ler_arquivo(teste):
         while i < len(line):
             if state == "DEFAULT":
                 if in_multiline_comment:
-                    # Estamos dentro de um comentário de bloco, ignoramos tudo até encontrar o final do comentário
                     if line[i:i + 2] == "*/":
                         in_multiline_comment = False
                         i += 1
                 else:
-                    # Verifica se há um comentário de linha
                     if line[i:i + 2] == "//":
-                        break  # ignoramos o restante da linha
+                        break
                     elif line[i:i + 2] == "/*":
-                        # Início do comentário de bloco
                         in_multiline_comment = True
                         i += 1
                     else:
-                        program += line[i]  # Adicionamos o caractere à string do programa
+                        program += line[i]
             else:
-                # Estamos em um comentário de linha, ignoramos tudo até o final da linha
                 break
             i += 1
 
-        # Adicionamos o buffer ao programa se estivermos no estado DEFAULT
         if state == "DEFAULT":
             if not in_multiline_comment:
                 program += buffer
@@ -50,7 +43,7 @@ def iniciar_analisador(programa):
     programa = adicionar_espacos_operadores(programa)
     print(programa)
 
-    tokens = tokenize(programa)  # Converte os tokens um por um
+    tokens = tokenize(programa)
     print(tokens)
     parse(tokens)
 
@@ -108,9 +101,6 @@ def adicionar_espacos_delimitadores(programa):
     return programa
 
 
-#precisa de ajustes
-
-
 def adicionar_espacos_operadores(programa):
 
     resultado = ''
@@ -130,62 +120,3 @@ def adicionar_espacos_operadores(programa):
 
     return resultado
 
-
-'''
-
-def adicionar_espacos_operadores(programa):
-    resultado = ''
-    i = 0
-
-    while i < len(programa):
-        char = programa[i]
-
-        # Verifica se o caractere atual é um operador
-        if char in operadores:
-            resultado += ' ' + char + ' '
-        else:
-            resultado += char
-
-        i += 1
-
-    return resultado
-
-------------------------
-
-def adicionar_espacos_operadores(programa):
-    operadores_auxiliar = r"(\s+|)(%s)(\s+|)" % "|".join(map(re.escape, operadores))
-    padrao = re.compile(f"({operadores_auxiliar})")
-    string_formatada = padrao.sub(lambda m: m.group(1) if m.group(1) else ' ' + m.group(2) + ' ' if m.group(2) else ' ', programa)
-
-    padrao = re.compile(r'(!)([a-zA-Z_][a-zA-Z0-9_]*)')
-    
-    def adicionar_espaco(match):
-        return match.group(1) + ' ' + match.group(2)
-
-    string_formatada = padrao.sub(adicionar_espaco, string_formatada)
-
-    return string_formatada
-
-
-
-
------------------------
-
-def adicionar_espacos_operadores(programa):
-    operadores_auxiliar = r"(\s+|)(%s)(\s+|)" % "|".join(map(re.escape, operadores))
-    padrao = re.compile(f"({operadores_auxiliar})")
-
-    string_formatada = padrao.sub(lambda m: m.group(1) if m.group(1) else ' ' + m.group(2) + ' ' if m.group(2) else ' ',
-                                  programa)
-
-    programa = string_formatada
-
-    padrao = re.compile(r'(!)([a-zA-Z_][a-zA-Z0-9_]*)')
-
-    def adicionar_espaco(match):
-        return match.group(1) + ' ' + match.group(2)
-
-    string_formatada = padrao.sub(adicionar_espaco, programa)
-
-    return string_formatada
-'''

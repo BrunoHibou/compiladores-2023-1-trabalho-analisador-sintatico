@@ -4,7 +4,6 @@ import sys
 
 
 def analisador_lexico(token):
-    #print(token)
     auxiliar = encontrar_constantes_textuais(token)
     if not auxiliar:
         auxiliar = encontrar_palavras_reservadas(token)
@@ -113,16 +112,15 @@ def retornar_delimitadores(delimitadores_encontrados):
 
 
 def encontrar_identificadores(programa):
-    padrao = expressoes_regulares['identificadores']
-    for token in programa:
-        encontrar_caractere_nao_permitido(programa)  # Verifica caracteres não permitidos dentro de cada token
+    encontrar_caractere_nao_permitido(programa)  # Verifica caracteres não permitidos dentro de cada token
     encontrar_palavras_com_numeros(programa)
+    encontrar_palavras_com_pontos(programa)
+    padrao = expressoes_regulares['identificadores']
     caracteres_identificadores = re.findall(padrao, programa)
 
     return retornar_identificadores(caracteres_identificadores)
 
 
-# precisa de ajustes
 def retornar_identificadores(identificadores_encontrados):
     if not identificadores_encontrados:
         return False
@@ -131,45 +129,24 @@ def retornar_identificadores(identificadores_encontrados):
         return "IDENTIFIER"
 
 
-def encontrar_caractere_nao_permitido(programa):
-    for token in programa:
-        if token not in ignoraveis and not any(re.findall(padrao, token) for padrao in expressoes_regulares.values()):
-            print(f"Erro: o token '{programa}' contém o caractere '{token}' que não é permitidoS!")
+def encontrar_caractere_nao_permitido(token):
+    for caractere in token:
+        if caractere not in ignoraveis and not any(re.findall(padrao, caractere) for padrao in expressoes_regulares.values()):
+            print(f"Erro: o token '{token}' contém o caractere '{caractere}' que não é permitido!")
             sys.exit()
 
 
-def encontrar_palavras_com_numeros(programa):
+def encontrar_palavras_com_numeros(token):
     padrao = r'\b(\d+[a-zA-Z0-9_]*)\b'
-    palavras_com_numeros = re.findall(padrao, programa)
+    palavras_com_numeros = re.findall(padrao, token)
     for palavra in palavras_com_numeros:
         if re.match('^\d', palavra):
             print(f'Erro: "{palavra}" é uma palavra inválida pois começa com um número.')
             sys.exit()
 
 
-
-'''
-
-def encontrar_identificadores(programa):
-    padrao = expressoes_regulares['identificadores']
-    caracteres_identificadores = []
-    encontrar_palavras_com_numeros(programa)
-
-    for token in programa:
-        encontrar_caractere_nao_permitido(token)  # Verifica caracteres não permitidos dentro de cada token
-        if re.match(padrao, token):
-            caracteres_identificadores.append(token)
-
-    return retornar_identificadores(caracteres_identificadores)
-
-
-# precisa de ajustes
-def retornar_identificadores(identificadores_encontrados):
-    if not identificadores_encontrados:
-        return False
-    for identificadores in identificadores_encontrados:
-        print(f"'{identificadores}' é um identificador.")
-        return "IDENTIFIER"
-
-
-'''
+def encontrar_palavras_com_pontos(token):
+    for ponto in token:
+        if ponto == '.':
+            print(f"Erro: Identificador inválido com pontos no meio de caracteres: '{token}'")
+            sys.exit()

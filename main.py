@@ -1,4 +1,3 @@
-from lexico import analisador_lexico
 from utils import *
 
 
@@ -14,4 +13,3 @@ def main():
 if __name__ == "__main__":
     print("----------------- Análise Iniciada -----------------")
     main()
-    #print("----------------- Programa Finalizado -----------------")
