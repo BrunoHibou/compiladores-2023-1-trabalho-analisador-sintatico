@@ -51,6 +51,7 @@ def retornar_operadores(operadores_encontrados):
 
 
 def encontrar_numeros(programa):
+    encontrar_numeros_com_multiplos_pontos(programa)
     padrao = expressoes_regulares['numerais']
     numeros_encontrados = re.findall(padrao, programa)
     inteiros = [num for num in numeros_encontrados if '.' not in num]
@@ -63,6 +64,16 @@ def encontrar_numeros(programa):
         resposta = retornar_numeros(floats, 'Flutuante')
 
     return resposta
+
+
+def encontrar_numeros_com_multiplos_pontos(programa):
+    count = 0
+    for numero in programa:
+        if numero == '.':
+            count +=1
+        if count > 1:
+            print(f"Erro: número '{programa}' é inválido, pois tem múltiplos pontos.")
+            sys.exit()
 
 
 def retornar_numeros(numeros, tipo):
