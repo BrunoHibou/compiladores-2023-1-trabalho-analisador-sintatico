@@ -41,6 +41,7 @@ def parse(tokens):
         function()
 
     def function():
+
         match("IDENTIFIER")
         match("(")
         if current_token != ")":
@@ -222,9 +223,6 @@ def parse(tokens):
             match("super")
             match(".")
             match("IDENTIFIER")
-        '''else:
-            print(f"--- SyntaxError: Unexpected token '{current_token}' in primary. ---")
-            sys.exit()'''
 
     def arguments():
         expression()
@@ -240,4 +238,4 @@ def parse(tokens):
         sys.exit()
     else:
         print(tokens)
-        print("----------------- Análise Sintática Concluída com Sucesso -----------------")
+        print("\n----------------- Análise Sintática Concluída com Sucesso -----------------")

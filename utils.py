@@ -42,7 +42,7 @@ def iniciar_analisador(programa):
     programa = adicionar_espacos_delimitadores(programa)
     programa = adicionar_espacos_operadores(programa)
     print(programa)
-
+    print("\n----------------------------------------------------\n")
     tokens = tokenize(programa)
     print(tokens)
     parse(tokens)
