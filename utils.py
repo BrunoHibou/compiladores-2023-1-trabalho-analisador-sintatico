@@ -39,13 +39,14 @@ def ler_arquivo(teste):
 
 
 def iniciar_analisador(programa):
-    programa = adicionar_espacos_delimitadores(programa)
+    programa = adicionar_espacos_delimitadores(programa) 
     programa = adicionar_espacos_operadores(programa)
     print(programa)
     print("\n----------------------------------------------------\n")
     tokens = tokenize(programa)
     print(tokens)
-    parse(tokens)
+
+    parse(tokens) #inicia a análise do programa
 
 
 def tokenize(programa):
